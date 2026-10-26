@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCALAR VS VECTOR: Master the Language of Physics</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            orbitron: ['Orbitron', 'sans-serif'],
+            rajdhani: ['Rajdhani', 'sans-serif'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#050811',
+              900: '#0a0f1d',
+              800: '#12192f',
+              700: '#1a2444',
+            },
+            cyanGlow: '#00f2fe',
+            blueGlow: '#4facfe',
+            goldGlow: '#ff9900',
+            orangeGlow: '#ff5500',
+          },
+          boxShadow: {
+            'cyan-neon': '0 0 20px rgba(0, 242, 254, 0.4), inset 0 0 15px rgba(0, 242, 254, 0.2)',
+            'gold-neon': '0 0 20px rgba(255, 153, 0, 0.4), inset 0 0 15px rgba(255, 153, 0, 0.2)',
+            'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Sci-fi Scrollbar & Glassmorphism */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #050811; }
+    ::-webkit-scrollbar-thumb { background: #1a2444; border-radius: 4px; border: 1px solid #00f2fe; }
+    ::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
+
+    .glass-panel {
+      background: rgba(10, 15, 29, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 242, 254, 0.2);
+    }
+
+    .glass-panel-gold {
+      background: rgba(15, 12, 5, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 153, 0, 0.3);
+    }
+
+    .glass-card {
+      background: rgba(18, 25, 47, 0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(0, 242, 254, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 242, 254, 0.2);
+    }
+
+    /* Pulse & Orb Animations */
+    @keyframes scalarPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 153, 0, 0.6); }
+      50% { transform: scale(1.08); box-shadow: 0 0 60px rgba(255, 85, 0, 0.9); }
+    }
+    .scalar-orb { animation: scalarPulse 3s infinite ease-in-out; }
+
+    @keyframes floatVector {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
+    }
+    .vector-float { animation: floatVector 4s infinite ease-in-out; }
+
+    /* Touch-friendly dragging */
+    .dragging {
+      opacity: 0.5;
+      scale: 0.95;
+    }
+
+    .drag-over {
+      border-color: #00f2fe !important;
+      background: rgba(0, 242, 254, 0.15) !important;
+    }
+
+    canvas { display: block; }
+  </style>
+</head>
+<body class="bg-navy-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-cyanGlow selection:text-navy-950">
+
+  <!-- Background Canvas Particle Effect -->
+  <canvas id="bgCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+  <!-- APP HEADER -->
+  <header class="relative z-20 border-b border-cyan-900/40 glass-panel sticky top-0 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Logo & Brand -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="app.showScreen('main-menu')">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyanGlow to-blue-600 flex items-center justify-center shadow-cyan-neon">
+          <i class="fa-solid fa-compass-drafting text-navy-950 text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-orbitron font-extrabold text-lg sm:text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyanGlow via-blue-400 to-amber-400">
+            SCALAR <span class="text-white text-xs px-1 py-0.5 rounded border border-slate-700 font-mono">VS</span> VECTOR
+          </h1>
+          <p class="text-[10px] font-rajdhani text-cyan-400 uppercase tracking-widest -mt-1 font-semibold">Master the Language of Physics</p>
+        </div>
+      </div>
+
+      <!-- Live Player Stats & Controls Bar -->
+      <div class="flex items-center gap-3 sm:gap-6 text-sm">
+        <!-- Stats -->
+        <div class="hidden sm:flex items-center gap-4 bg-navy-900/80 px-3 py-1.5 rounded-full border border-slate-800">
+          <div class="flex items-center gap-1.5 text-amber-400 font-mono" title="Player Experience Points">
+            <i class="fa-solid fa-bolt text-xs"></i>
+            <span id="global-xp">0</span> <span class="text-[10px] text-slate-400">XP</span>
+          </div>
+          <div class="w-px h-4 bg-slate-800"></div>
+          <div class="flex items-center gap-1.5 text-cyan-400 font-mono" title="Accuracy Rating">
+            <i class="fa-solid fa-bullseye text-xs"></i>
+            <span id="global-accuracy">100%</span>
+          </div>
+          <div class="w-px h-4 bg-slate-800"></div>
+          <div class="flex items-center gap-1.5 text-purple-400 font-mono" title="Level Progress">
+            <i class="fa-solid fa-award text-xs"></i>
+            <span id="global-level">Lvl 1</span>
+          </div>
+        </div>
+
+        <!-- Controls: Sound, Animation, Difficulty -->
+        <div class="flex items-center gap-2">
+          <!-- Sound Toggle -->
+          <button id="btn-sound" onclick="audio.toggleMute()" class="w-9 h-9 rounded-lg bg-navy-800 hover:bg-navy-700 border border-slate-700 flex items-center justify-center text-cyan-400 transition" title="Toggle Sound">
+            <i class="fa-solid fa-volume-high" id="icon-sound"></i>
+          </button>
+
+          <!-- Animation Toggle -->
+          <button id="btn-anim" onclick="app.toggleFx()" class="w-9 h-9 rounded-lg bg-navy-800 hover:bg-navy-700 border border-slate-700 flex items-center justify-center text-cyan-400 transition" title="Toggle Background Particles">
+            <i class="fa-solid fa-atom"></i>
+          </button>
+
+          <!-- Difficulty Select -->
+          <select id="diff-select" onchange="app.setDifficulty(this.value)" class="bg-navy-800 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-2 font-mono focus:outline-none focus:border-cyanGlow cursor-pointer">
+            <option value="easy">EASY</option>
+            <option value="medium" selected>MEDIUM</option>
+            <option value="hard">HARD</option>
+          </select>
+
+          <!-- Achievements Modal Button -->
+          <button onclick="app.showAchievementsModal()" class="w-9 h-9 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 transition" title="Achievements">
+            <i class="fa-solid fa-trophy"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER (DYNAMIC SCREENS) -->
+  <main class="relative z-10 flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
+
+    <!-- SCREEN 1: MAIN MENU HERO -->
+    <section id="screen-main-menu" class="active-screen space-y-8 my-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Hero Text & CTA -->
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3 me-auto py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-xs font-mono uppercase tracking-widest">
+            <span class="w-2 h-2 rounded-full bg-cyanGlow animate-ping"></span>
+            Interactive Physics Learning System
+          </div>
+
+          <h1 class="font-orbitron font-black text-4xl sm:text-6xl tracking-tight leading-none text-white">
+            SCALAR <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">VS</span> <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyanGlow to-blue-500">VECTOR</span>
+          </h1>
+
+          <p class="text-lg sm:text-xl font-rajdhani text-cyan-300 font-semibold tracking-wide">
+            "Every Quantity Has a Story. Can You Read It?"
+          </p>
+
+          <p class="text-slate-400 text-sm sm:text-base max-w-2xl leading-relaxed">
+            Step into the scientific simulator. Master the fundamental language of universe mechanics by mastering the distinctions between <strong class="text-amber-400 font-semibold">Scalars</strong> (Magnitude only) and <strong class="text-cyan-400 font-semibold">Vectors</strong> (Magnitude & Direction).
+          </p>
+
+          <!-- Main CTA Grid -->
+          <div class="pt-4 flex flex-wrap gap-4 justify-center lg:justify-start">
+            <button onclick="app.startCampaign()" class="px-8 py-4 rounded-xl bg-gradient-to-r from-cyanGlow to-blue-600 text-navy-950 font-orbitron font-extrabold text-base tracking-wider hover:brightness-110 transform hover:-translate-y-1 transition shadow-cyan-neon flex items-center gap-3">
+              <i class="fa-solid fa-play text-lg"></i> PLAY NOW
+            </button>
+
+            <button onclick="app.showScreen('learn-basics')" class="px-6 py-4 rounded-xl bg-navy-800/90 hover:bg-navy-700 border border-slate-700 hover:border-cyan-400 text-slate-200 font-orbitron font-semibold text-sm tracking-wider transition flex items-center gap-2">
+              <i class="fa-solid fa-book-open text-cyan-400"></i> LEARN THE BASICS
+            </button>
+
+            <button onclick="app.startMode('speed')" class="px-6 py-4 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/50 hover:bg-amber-500/30 text-amber-300 font-orbitron font-semibold text-sm tracking-wider transition flex items-center gap-2">
+              <i class="fa-solid fa-stopwatch text-amber-400"></i> CHALLENGE MODE
+            </button>
+          </div>
+
+          <!-- Secondary Menu Links -->
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 text-xs font-mono text-slate-400">
+            <button onclick="app.showScreen('game-modes')" class="hover:text-cyanGlow flex items-center gap-1 transition">
+              <i class="fa-solid fa-cubes"></i> GAME MODES
+            </button>
+            <span>•</span>
+            <button onclick="app.showScreen('how-to-play')" class="hover:text-cyanGlow flex items-center gap-1 transition">
+              <i class="fa-solid fa-circle-info"></i> HOW TO PLAY
+            </button>
+          </div>
+        </div>
+
+        <!-- Hero Visual Display (Scalar Orb vs Vector Arrow Visualizer) -->
+        <div class="lg:col-span-5 flex justify-center">
+          <div class="relative w-72 h-72 sm:w-96 sm:h-96 flex items-center justify-center">
+            <!-- Background Halo -->
+            <div class="absolute inset-0 rounded-full border border-dashed border-cyan-500/20 animate-[spin_20s_linear_infinite]"></div>
+            <div class="absolute inset-4 rounded-full border border-dotted border-amber-500/20 animate-[spin_15s_linear_infinite_reverse]"></div>
+
+            <!-- Scalar Sphere Visual -->
+            <div class="scalar-orb absolute w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-tr from-amber-600 via-orange-500 to-yellow-400 flex flex-col items-center justify-center text-center p-4 shadow-gold-neon border-2 border-amber-300 z-10 cursor-pointer" onclick="audio.play('scalar')">
+              <i class="fa-solid fa-[#fa1] fa-sun text-2xl text-navy-950 mb-1"></i>
+              <span class="font-orbitron font-black text-navy-950 text-sm tracking-widest">SCALAR</span>
+              <span class="text-[10px] text-navy-900 font-bold uppercase tracking-tight">Magnitude Only</span>
+            </div>
+
+            <!-- Animated Vector Arrows Orbiting -->
+            <div class="vector-float absolute -top-2 right-4 glass-panel px-4 py-2 rounded-lg text-cyan-400 font-mono text-xs border border-cyan-500/50 shadow-cyan-neon flex items-center gap-2 z-20">
+              <i class="fa-solid fa-arrow-trend-up text-lg"></i>
+              <div>
+                <p class="font-bold text-white">VECTOR</p>
+                <p class="text-[10px] text-cyan-300">Mag + Direction</p>
+              </div>
+            </div>
+
+            <div class="vector-float absolute -bottom-2 left-4 glass-panel px-4 py-2 rounded-lg text-blue-400 font-mono text-xs border border-blue-500/50 flex items-center gap-2 z-20" style="animation-delay: 1.5s;">
+              <i class="fa-solid fa-compass text-lg text-amber-400"></i>
+              <div>
+                <p class="font-bold text-white">50 N East</p>
+                <p class="text-[10px] text-slate-400">Force Vector</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SCREEN 2: LEARN THE BASICS (INTERACTIVE THEORY & VISUAL DEMOS) -->
+    <section id="screen-learn-basics" class="hidden space-y-6">
+      
+      <!-- Screen Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="font-orbitron font-bold text-2xl text-cyanGlow flex items-center gap-2">
+            <i class="fa-solid fa-graduation-cap"></i> LEARN THE BASICS
+          </h2>
+          <p class="text-xs text-slate-400">Master physics principles through simple definitions and interactive visualizers.</p>
+        </div>
+        <button onclick="app.showScreen('main-menu')" class="px-4 py-2 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300 text-xs font-mono transition">
+          <i class="fa-solid fa-arrow-left"></i> BACK TO MENU
+        </button>
+      </div>
+
+      <!-- Theory Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Scalar Card -->
+        <div class="glass-panel-gold rounded-2xl p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-amber-500/20 pb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 text-xl font-bold">
+                #
+              </div>
+              <div>
+                <h3 class="font-orbitron font-extrabold text-xl text-amber-400">SCALAR QUANTITY</h3>
+                <p class="text-xs text-amber-200/60 font-mono">Magnitude + Unit (No Direction)</p>
+              </div>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-mono">1D Value</span>
+          </div>
+
+          <p class="text-slate-300 text-sm leading-relaxed">
+            "A scalar quantity is fully described by its magnitude (a numeric amount) and an appropriate physical unit, where applicable. It <strong class="text-amber-300">does not require direction</strong>."
+          </p>
+
+          <div class="space-y-2">
+            <h4 class="text-xs font-orbitron text-amber-400 uppercase tracking-wider">Key Examples & Units</h4>
+            <div class="flex flex-wrap gap-2 text-xs">
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-amber-500/30 text-slate-200">Mass (kg)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-amber-500/30 text-slate-200">Time (s)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-amber-500/30 text-slate-200">Temperature (K, °C)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-amber-500/30 text-slate-200">Distance (m)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-amber-500/30 text-slate-200">Speed (m/s)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-amber-500/30 text-slate-200">Energy & Work (J)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-amber-500/30 text-slate-200">Power (W)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-amber-500/30 text-slate-200">Density (kg/m³)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-amber-500/30 text-slate-200">Pressure (Pa)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vector Card -->
+        <div class="glass-panel rounded-2xl p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-cyan-500/20 pb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center text-cyan400 text-xl font-bold text-cyanGlow">
+                &rarr;
+              </div>
+              <div>
+                <h3 class="font-orbitron font-extrabold text-xl text-cyanGlow">VECTOR QUANTITY</h3>
+                <p class="text-xs text-cyan-200/60 font-mono">Magnitude + Unit + Direction</p>
+              </div>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 font-mono">Directional</span>
+          </div>
+
+          <p class="text-slate-300 text-sm leading-relaxed">
+            "A vector quantity requires <strong class="text-cyan-300">both magnitude and direction</strong> to be fully specified. Changing direction changes the vector, even if numerical magnitude stays constant."
+          </p>
+
+          <div class="space-y-2">
+            <h4 class="text-xs font-orbitron text-cyanGlow uppercase tracking-wider">Key Examples & Units</h4>
+            <div class="flex flex-wrap gap-2 text-xs">
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-cyan-500/30 text-slate-200">Displacement (m, East)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-cyan-500/30 text-slate-200">Velocity (m/s, North)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-cyan-500/30 text-slate-200">Acceleration (m/s², Down)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-cyan-500/30 text-slate-200">Force (N)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-cyan-500/30 text-slate-200">Weight (N, Downward)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-cyan-500/30 text-slate-200">Momentum (kg·m/s)</span>
+              <span class="px-2.5 py-1 rounded bg-navy-900 border border-cyan-500/30 text-slate-200">Torque (N·m)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- INTERACTIVE DEMO 1: DISTANCE VS DISPLACEMENT RUNNER -->
+      <div class="glass-panel rounded-2xl p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="font-orbitron font-bold text-lg text-white flex items-center gap-2">
+              <i class="fa-solid fa-person-running text-amber-400"></i> Interactive Demo 1: Distance (Scalar) vs Displacement (Vector)
+            </h3>
+            <p class="text-xs text-slate-400">Watch how a runner traveling on a curved path accumulates path distance while their net vector displacement depends solely on straight-line position.</p>
+          </div>
+          <button onclick="demoRunner.reset()" class="self-start sm:self-auto px-3 py-1.5 rounded bg-navy-800 hover:bg-navy-700 text-xs text-cyan-300 font-mono border border-cyan-500/30">
+            <i class="fa-solid fa-rotate"></i> Reset Runner
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-8 bg-navy-950 rounded-xl border border-slate-800 p-2 overflow-hidden relative">
+            <canvas id="runnerCanvas" class="w-full h-56 rounded"></canvas>
+            <div class="absolute bottom-4 left-4 flex gap-2">
+              <button onclick="demoRunner.startOutbound()" class="px-3 py-1 bg-amber-500 text-navy-950 font-bold text-xs rounded hover:brightness-110">Run Outbound</button>
+              <button onclick="demoRunner.startReturn()" class="px-3 py-1 bg-cyanGlow text-navy-950 font-bold text-xs rounded hover:brightness-110">Return Home</button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-4 space-y-3 font-mono text-xs">
+            <div class="p-3 bg-navy-900 rounded-lg border border-amber-500/30">
+              <div class="text-amber-400 font-bold uppercase mb-1">Scalar: Distance (Total Path)</div>
+              <div class="text-2xl font-bold text-white"><span id="demo-distance">0</span> <span class="text-sm">meters</span></div>
+              <p class="text-[11px] text-slate-400 mt-1">Always adds up regardless of direction change.</p>
+            </div>
+
+            <div class="p-3 bg-navy-900 rounded-lg border border-cyan-500/30">
+              <div class="text-cyanGlow font-bold uppercase mb-1">Vector: Displacement ($\vec{\Delta x}$)</div>
+              <div class="text-2xl font-bold text-white"><span id="demo-displacement">0</span> <span class="text-sm">meters East</span></div>
+              <p class="text-[11px] text-slate-400 mt-1">Straight line from start to current position. Returns to 0 when runner returns home!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE DEMO 2: POLAR VECTOR VISUALIZER WITH COMPONENTS -->
+      <div class="glass-panel rounded-2xl p-6 space-y-4">
+        <div>
+          <h3 class="font-orbitron font-bold text-lg text-white flex items-center gap-2">
+            <i class="fa-solid fa-compass-drafting text-cyanGlow"></i> Interactive Demo 2: Polar Coordinate Vector Decomposition
+          </h3>
+          <p class="text-xs text-slate-400">Adjust magnitude ($|V|$) and angle ($\theta$) to see real-time vector component breakdown ($V_x = V \cos\theta$, $V_y = V \sin\theta$).</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-7 bg-navy-950 rounded-xl border border-slate-800 p-2 flex justify-center">
+            <canvas id="vectorPolarCanvas" class="w-full h-64 rounded"></canvas>
+          </div>
+
+          <div class="lg:col-span-5 space-y-4">
+            <!-- Sliders -->
+            <div class="space-y-3 bg-navy-900/80 p-4 rounded-xl border border-slate-800">
+              <div>
+                <div class="flex justify-between text-xs font-mono mb-1">
+                  <span class="text-slate-300">Magnitude ($|\vec{F}|$):</span>
+                  <span class="text-cyanGlow font-bold"><span id="slider-mag-val">100</span> N</span>
+                </div>
+                <input type="range" id="slider-mag" min="10" max="200" value="100" oninput="vectorVisualizer.update()" class="w-full accent-cyanGlow bg-navy-950 cursor-pointer">
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-mono mb-1">
+                  <span class="text-slate-300">Direction Angle ($\theta$):</span>
+                  <span class="text-amber-400 font-bold"><span id="slider-angle-val">45</span>°</span>
+                </div>
+                <input type="range" id="slider-angle" min="0" max="360" value="45" oninput="vectorVisualizer.update()" class="w-full accent-amber-400 bg-navy-950 cursor-pointer">
+              </div>
+            </div>
+
+            <!-- Mathematical Output -->
+            <div class="grid grid-cols-2 gap-3 font-mono text-xs">
+              <div class="p-3 bg-navy-900 rounded-lg border border-slate-800">
+                <span class="text-slate-400 text-[10px]">X Component ($F_x$)</span>
+                <p class="text-lg font-bold text-cyan-300"><span id="polar-fx">70.7</span> N</p>
+              </div>
+              <div class="p-3 bg-navy-900 rounded-lg border border-slate-800">
+                <span class="text-slate-400 text-[10px]">Y Component ($F_y$)</span>
+                <p class="text-lg font-bold text-cyan-300"><span id="polar-fy">70.7</span> N</p>
+              </div>
+            </div>
+
+            <p class="text-[11px] text-slate-400 italic">
+              *Notice how a scalar quantity like mass (10 kg) has no components or direction angle!
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SCREEN 3: GAME MODE SELECTOR -->
+    <section id="screen-game-modes" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="font-orbitron font-bold text-2xl text-white flex items-center gap-2">
+            <i class="fa-solid fa-cubes text-cyanGlow"></i> SELECT A GAME MODE
+          </h2>
+          <p class="text-xs text-slate-400">Choose your preferred challenge format to test your physics skills.</p>
+        </div>
+        <button onclick="app.showScreen('main-menu')" class="px-4 py-2 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300 text-xs font-mono transition">
+          <i class="fa-solid fa-arrow-left"></i> BACK TO MENU
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Mode 1 Card -->
+        <div onclick="app.startMode('classification')" class="glass-card rounded-2xl p-6 cursor-pointer space-y-4 group">
+          <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyanGlow text-2xl group-hover:scale-110 transition">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+          <h3 class="font-orbitron font-bold text-lg text-white group-hover:text-cyanGlow transition">1. Classification Challenge</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Present physical quantities one by one. Analyze magnitude and directional context to classify each as Scalar or Vector.</p>
+          <div class="pt-2 flex justify-between items-center text-xs font-mono text-cyan-400">
+            <span>Campaign Mode</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+        </div>
+
+        <!-- Mode 2 Card -->
+        <div onclick="app.startMode('speed')" class="glass-card rounded-2xl p-6 cursor-pointer space-y-4 group">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl group-hover:scale-110 transition">
+            <i class="fa-solid fa-stopwatch"></i>
+          </div>
+          <h3 class="font-orbitron font-bold text-lg text-white group-hover:text-amber-400 transition">2. Speed Challenge</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">High-intensity 45-second sprint trial. Build combo multiplier streaks for rapid correct classifications!</p>
+          <div class="pt-2 flex justify-between items-center text-xs font-mono text-amber-400">
+            <span>Time Trial</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+        </div>
+
+        <!-- Mode 3 Card -->
+        <div onclick="app.startMode('sorting')" class="glass-card rounded-2xl p-6 cursor-pointer space-y-4 group">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl group-hover:scale-110 transition">
+            <i class="fa-solid fa-hand-pointer"></i>
+          </div>
+          <h3 class="font-orbitron font-bold text-lg text-white group-hover:text-purple-400 transition">3. Sorting Lab</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Drag and drop (or tap-to-select) mixed physical quantity cards into the correct glowing Scalar or Vector containment bins.</p>
+          <div class="pt-2 flex justify-between items-center text-xs font-mono text-purple-400">
+            <span>Interactive Lab</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+        </div>
+
+        <!-- Mode 4 Card -->
+        <div onclick="app.startMode('mistake')" class="glass-card rounded-2xl p-6 cursor-pointer space-y-4 group">
+          <div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-2xl group-hover:scale-110 transition">
+            <i class="fa-solid fa-bug"></i>
+          </div>
+          <h3 class="font-orbitron font-bold text-lg text-white group-hover:text-red-400 transition">4. Spot the Mistake</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Examine physics student notes and textbook claims. Spot incorrect classifications or bogus scientific reasoning.</p>
+          <div class="pt-2 flex justify-between items-center text-xs font-mono text-red-400">
+            <span>Error Analysis</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+        </div>
+
+        <!-- Mode 5 Card -->
+        <div onclick="app.startMode('missions')" class="glass-card rounded-2xl p-6 cursor-pointer space-y-4 group md:col-span-2 lg:col-span-1">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl group-hover:scale-110 transition">
+            <i class="fa-solid fa-rocket"></i>
+          </div>
+          <h3 class="font-orbitron font-bold text-lg text-white group-hover:text-emerald-400 transition">5. Physics Missions</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Real-world scenario missions: Spacecraft thruster vectors, delivery drone navigation, and elevator mass vs weight calibration.</p>
+          <div class="pt-2 flex justify-between items-center text-xs font-mono text-emerald-400">
+            <span>Applied Scenarios</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SCREEN 4: HOW TO PLAY -->
+    <section id="screen-how-to-play" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="font-orbitron font-bold text-2xl text-cyanGlow flex items-center gap-2">
+            <i class="fa-solid fa-circle-info"></i> HOW TO PLAY & CONTROLS
+          </h2>
+          <p class="text-xs text-slate-400">Quick guide to navigating challenges and rules.</p>
+        </div>
+        <button onclick="app.showScreen('main-menu')" class="px-4 py-2 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300 text-xs font-mono transition">
+          <i class="fa-solid fa-arrow-left"></i> BACK TO MENU
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+        <div class="glass-panel p-5 rounded-xl space-y-3">
+          <div class="text-amber-400 font-orbitron font-bold flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center text-xs">1</span>
+            Identify Magnitude vs Direction
+          </div>
+          <p class="text-slate-300 text-xs leading-relaxed">
+            If a quantity only has numerical magnitude and units (e.g. 50 kg, 300 K, 100 Joules), it is a <strong class="text-amber-400">SCALAR</strong>. If direction matters (e.g. 20 m/s North, 50 N downward), it is a <strong class="text-cyanGlow">VECTOR</strong>.
+          </p>
+        </div>
+
+        <div class="glass-panel p-5 rounded-xl space-y-3">
+          <div class="text-cyanGlow font-orbitron font-bold flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center text-xs">2</span>
+            Controls & Mobile Touch
+          </div>
+          <p class="text-slate-300 text-xs leading-relaxed">
+            In Sorting Lab, drag items into containers or tap an item then tap the destination container. On desktop, use Keyboard Hotkeys: <kbd class="px-1.5 py-0.5 bg-navy-900 border border-slate-700 rounded text-cyan-300">S</kbd> for Scalar, <kbd class="px-1.5 py-0.5 bg-navy-900 border border-slate-700 rounded text-cyan-300">V</kbd> for Vector.
+          </p>
+        </div>
+
+        <div class="glass-panel p-5 rounded-xl space-y-3">
+          <div class="text-purple-400 font-orbitron font-bold flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center text-xs">3</span>
+            Combo Streaks & Badges
+          </div>
+          <p class="text-slate-300 text-xs leading-relaxed">
+            Answer rapidly without mistakes to build your Combo Multiplier up to x5! Earn XP to level up from Novice to Master Physicist and unlock special achievements.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: GAMEPLAY CONTAINER (HANDLES ALL 5 ACTIVE MODES) -->
+    <section id="screen-gameplay" class="hidden space-y-6">
+      
+      <!-- Gameplay Top Bar -->
+      <div class="glass-panel rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <!-- Mode Title & Progress -->
+        <div class="flex items-center gap-3">
+          <span id="active-mode-badge" class="px-3 py-1 rounded bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-mono text-xs uppercase font-bold">
+            Classification Challenge
+          </span>
+          <div class="text-xs font-mono text-slate-400">
+            Question <span id="current-q-num" class="text-white font-bold">1</span> of <span id="total-q-num">10</span>
+          </div>
+        </div>
+
+        <!-- Timer / Streak / Current Score -->
+        <div class="flex items-center gap-6 text-sm font-mono">
+          <!-- Timer Display (Speed Trial) -->
+          <div id="timer-box" class="hidden flex items-center gap-2 px-3 py-1 rounded bg-amber-500/10 border border-amber-500/40 text-amber-400 font-bold">
+            <i class="fa-solid fa-clock"></i>
+            <span id="time-left">45</span>s
+          </div>
+
+          <!-- Streak Multiplier -->
+          <div class="flex items-center gap-1.5 text-orange-400 font-bold" title="Current Combo Multiplier">
+            <i class="fa-solid fa-fire animate-bounce"></i>
+            <span>x<span id="combo-streak">1</span></span>
+          </div>
+
+          <!-- Session Score -->
+          <div class="flex items-center gap-1.5 text-cyanGlow font-bold">
+            <i class="fa-solid fa-star"></i>
+            <span id="session-score">0</span> pts
+          </div>
+        </div>
+      </div>
+
+      <!-- DYNAMIC CONTENT AREA FOR MODES -->
+      <div id="gameplay-dynamic-area" class="min-h-[400px]">
+        <!-- Injected via JavaScript based on current mode -->
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL 1: POST-GAME / MISSION RESULTS -->
+  <div id="results-modal" class="fixed inset-0 z-50 bg-navy-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-panel rounded-2xl max-w-lg w-full p-6 space-y-6 border-cyan-500/40 animate-fade-in">
+      
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-cyanGlow to-blue-600 mx-auto flex items-center justify-center shadow-cyan-neon text-navy-950 text-3xl font-extrabold">
+          <i class="fa-solid fa-trophy" id="modal-result-icon"></i>
+        </div>
+        <h3 class="font-orbitron font-extrabold text-2xl text-white" id="modal-result-title">MISSION COMPLETED!</h3>
+        <p class="text-xs text-cyan-300 font-mono" id="modal-result-subtitle">Physics Performance Analysis</p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-3 gap-3 font-mono text-center">
+        <div class="p-3 bg-navy-900 rounded-xl border border-slate-800">
+          <div class="text-[10px] text-slate-400 uppercase">Final Score</div>
+          <div class="text-xl font-bold text-cyanGlow" id="modal-score">0</div>
+        </div>
+        <div class="p-3 bg-navy-900 rounded-xl border border-slate-800">
+          <div class="text-[10px] text-slate-400 uppercase">Accuracy</div>
+          <div class="text-xl font-bold text-amber-400" id="modal-accuracy">100%</div>
+        </div>
+        <div class="p-3 bg-navy-900 rounded-xl border border-slate-800">
+          <div class="text-[10px] text-slate-400 uppercase">XP Gained</div>
+          <div class="text-xl font-bold text-purple-400" id="modal-xp">+150</div>
+        </div>
+      </div>
+
+      <!-- Missed Concepts Breakdown -->
+      <div class="space-y-2">
+        <h4 class="text-xs font-orbitron text-slate-300 uppercase">Diagnostic Notes & Feedback</h4>
+        <div id="modal-feedback-list" class="max-h-36 overflow-y-auto space-y-2 p-3 bg-navy-950/70 rounded-lg text-xs border border-slate-800 text-slate-300">
+          <p class="text-slate-400 italic">No errors logged. Perfect scientific execution!</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-3">
+        <button onclick="app.closeResultsModal(); app.showScreen('main-menu')" class="flex-1 py-3 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 text-xs font-orbitron font-bold tracking-wider transition">
+          MAIN MENU
+        </button>
+        <button id="modal-retry-btn" onclick="app.retryCurrentMode()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyanGlow to-blue-600 text-navy-950 text-xs font-orbitron font-extrabold tracking-wider hover:brightness-110 transition shadow-cyan-neon">
+          RETRY MODE
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL 2: ACHIEVEMENTS & BADGES -->
+  <div id="achievements-modal" class="fixed inset-0 z-50 bg-navy-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-panel rounded-2xl max-w-xl w-full p-6 space-y-6 border-amber-500/40">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-trophy text-amber-400 text-2xl"></i>
+          <div>
+            <h3 class="font-orbitron font-bold text-lg text-white">SCIENTIFIC ACHIEVEMENTS</h3>
+            <p class="text-xs text-slate-400">Unlock badges by mastering game modes</p>
+          </div>
+        </div>
+        <button onclick="app.closeAchievementsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div id="achievements-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-96 overflow-y-auto p-1">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 border-t border-slate-900 glass-panel py-3 px-4 text-center text-xs font-mono text-slate-400">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>SCALAR VS VECTOR &copy; 2026 — Master the Language of Physics</p>
+      <div class="flex gap-4">
+        <span>English Language Edition</span>
+        <span>•</span>
+        <span class="text-cyan-400">Interactive Simulation</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SOUND SYSTEM (Web Audio API Synthesizer) -->
+  <script>
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        const icon = document.getElementById('icon-sound');
+        const btn = document.getElementById('btn-sound');
+        if (this.muted) {
+          icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+          btn.classList.add('border-red-500/40');
+        } else {
+          icon.className = 'fa-solid fa-volume-high text-cyan-400';
+          btn.classList.remove('border-red-500/40');
+          this.play('click');
+        }
+      }
+
+      play(type) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const now = this.ctx.currentTime;
+
+        if (type === 'click') {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, now);
+          osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'correct') {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'wrong') {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.setValueAtTime(180, now + 0.1);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'scalar') {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.linearRampToValueAtTime(600, now + 0.2);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else if (type === 'levelUp') {
+          // Arpeggio chime
+          [440, 554.37, 659.25, 880].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.15, now + idx * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.06);
+            osc.stop(now + idx * 0.06 + 0.2);
+          });
+        }
+      }
+    }
+    const audio = new SoundFX();
+  </script>
+
+  <!-- BACKGROUND CANVAS PARTICLES -->
+  <script>
+    class BackgroundCanvas {
+      constructor() {
+        this.canvas = document.getElementById('bgCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.enabled = true;
+        this.resize();
+        this.initParticles();
+        window.addEventListener('resize', () => this.resize());
+      }
+
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+
+      initParticles() {
+        this.particles = [];
+        const count = Math.min(Math.floor(window.innerWidth / 20), 60);
+        for (let i = 0; i < count; i++) {
+          this.particles.push({
+            x: Math.random() * this.canvas.width,
+            y: Math.random() * this.canvas.height,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: (Math.random() - 0.5) * 0.8,
+            radius: Math.random() * 2 + 1,
+            color: Math.random() > 0.5 ? '#00f2fe' : '#ff9900',
+            alpha: Math.random() * 0.5 + 0.2
+          });
+        }
+      }
+
+      render() {
+        if (!this.enabled) {
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          return;
+        }
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0) p.x = this.canvas.width;
+          if (p.x > this.canvas.width) p.x = 0;
+          if (p.y < 0) p.y = this.canvas.height;
+          if (p.y > this.canvas.height) p.y = 0;
+
+          this.ctx.beginPath();
+          this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          this.ctx.fillStyle = p.color;
+          this.ctx.globalAlpha = p.alpha;
+          this.ctx.shadowBlur = 10;
+          this.ctx.shadowColor = p.color;
+          this.ctx.fill();
+        });
+        this.ctx.shadowBlur = 0;
+        this.ctx.globalAlpha = 1;
+
+        requestAnimationFrame(() => this.render());
+      }
+    }
+    const bgCanvas = new BackgroundCanvas();
+    window.onload = () => bgCanvas.render();
+  </script>
+
+  <!-- INTERACTIVE DEMO 1 CANVAS (DISTANCE VS DISPLACEMENT) -->
+  <script>
+    class RunnerDemo {
+      constructor() {
+        this.canvas = document.getElementById('runnerCanvas');
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.pos = { x: 40, y: 120 };
+        this.startPos = { x: 40, y: 120 };
+        this.targetX = 40;
+        this.totalDistance = 0;
+        this.animating = false;
+        this.mode = 'idle';
+        this.init();
+      }
+
+      init() {
+        this.canvas.width = this.canvas.parentElement.clientWidth - 16;
+        this.canvas.height = 224;
+        this.draw();
+      }
+
+      reset() {
+        this.pos = { x: 40, y: 120 };
+        this.totalDistance = 0;
+        this.animating = false;
+        document.getElementById('demo-distance').innerText = '0';
+        document.getElementById('demo-displacement').innerText = '0';
+        this.draw();
+      }
+
+      startOutbound() {
+        if (this.animating) return;
+        this.targetX = this.canvas.width - 60;
+        this.mode = 'outbound';
+        this.animating = true;
+        this.animate();
+      }
+
+      startReturn() {
+        if (this.animating) return;
+        this.targetX = 40;
+        this.mode = 'return';
+        this.animating = true;
+        this.animate();
+      }
+
+      animate() {
+        if (!this.animating) return;
+
+        let step = 3;
+        if (this.mode === 'outbound') {
+          if (this.pos.x < this.targetX) {
+            this.pos.x += step;
+            this.totalDistance += step;
+          } else {
+            this.animating = false;
+          }
+        } else if (this.mode === 'return') {
+          if (this.pos.x > this.targetX) {
+            this.pos.x -= step;
+            this.totalDistance += step;
+          } else {
+            this.animating = false;
+          }
+        }
+
+        const displacement = Math.round((this.pos.x - this.startPos.x) * 0.5);
+        document.getElementById('demo-distance').innerText = Math.round(this.totalDistance * 0.5);
+        document.getElementById('demo-displacement').innerText = displacement;
+
+        this.draw();
+        if (this.animating) requestAnimationFrame(() => this.animate());
+      }
+
+      draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Track Line
+        this.ctx.strokeStyle = '#1a2444';
+        this.ctx.lineWidth = 4;
+        this.ctx.beginPath();
+        this.ctx.moveTo(40, 120);
+        this.ctx.lineTo(this.canvas.width - 60, 120);
+        this.ctx.stroke();
+
+        // Start Home Marker
+        this.ctx.fillStyle = '#ff9900';
+        this.ctx.beginPath();
+        this.ctx.arc(40, 120, 8, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = '10px Orbitron';
+        this.ctx.fillText('HOME (0m)', 20, 145);
+
+        // Vector Displacement Arrow (Cyan Line from Start to Pos)
+        if (this.pos.x !== 40) {
+          this.ctx.strokeStyle = '#00f2fe';
+          this.ctx.lineWidth = 3;
+          this.ctx.beginPath();
+          this.ctx.moveTo(40, 90);
+          this.ctx.lineTo(this.pos.x, 90);
+          this.ctx.stroke();
+
+          // Arrow tip
+          const dir = this.pos.x > 40 ? 1 : -1;
+          this.ctx.fillStyle = '#00f2fe';
+          this.ctx.beginPath();
+          this.ctx.moveTo(this.pos.x, 90);
+          this.ctx.lineTo(this.pos.x - 8 * dir, 85);
+          this.ctx.lineTo(this.pos.x - 8 * dir, 95);
+          this.ctx.fill();
+        }
+
+        // Runner Character (Amber Orb)
+        this.ctx.fillStyle = '#4facfe';
+        this.ctx.beginPath();
+        this.ctx.arc(this.pos.x, 120, 10, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowColor = '#00f2fe';
+      }
+    }
+    let demoRunner;
+  </script>
+
+  <!-- INTERACTIVE DEMO 2 CANVAS (POLAR VECTOR VISUALIZER) -->
+  <script>
+    class VectorVisualizer {
+      constructor() {
+        this.canvas = document.getElementById('vectorPolarCanvas');
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.init();
+      }
+
+      init() {
+        this.canvas.width = Math.min(this.canvas.parentElement.clientWidth - 16, 400);
+        this.canvas.height = 256;
+        this.update();
+      }
+
+      update() {
+        const mag = parseFloat(document.getElementById('slider-mag').value);
+        const angle = parseFloat(document.getElementById('slider-angle').value);
+
+        document.getElementById('slider-mag-val').innerText = mag;
+        document.getElementById('slider-angle-val').innerText = angle;
+
+        const rad = (angle * Math.PI) / 180;
+        const fx = mag * Math.cos(rad);
+        const fy = mag * Math.sin(rad);
+
+        document.getElementById('polar-fx').innerText = fx.toFixed(1);
+        document.getElementById('polar-fy').innerText = fy.toFixed(1);
+
+        this.draw(mag, angle, fx, fy);
+      }
+
+      draw(mag, angleDeg, fx, fy) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const cx = this.canvas.width / 2;
+        const cy = this.canvas.height / 2;
+        const scale = 0.8;
+
+        // Polar Coordinate Axes
+        this.ctx.strokeStyle = '#1e293b';
+        this.ctx.lineWidth = 1;
+
+        // Grid Circles
+        [30, 60, 90].forEach(r => {
+          this.ctx.beginPath();
+          this.ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          this.ctx.stroke();
+        });
+
+        // X & Y Axes
+        this.ctx.beginPath();
+        this.ctx.moveTo(20, cy); this.ctx.lineTo(this.canvas.width - 20, cy);
+        this.ctx.moveTo(cx, 20); this.ctx.lineTo(cx, this.canvas.height - 20);
+        this.ctx.stroke();
+
+        // X Component Vector (Dashed Amber Line)
+        this.ctx.strokeStyle = '#ff9900';
+        this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([4, 4]);
+        this.ctx.beginPath();
+        this.ctx.moveTo(cx, cy);
+        this.ctx.lineTo(cx + fx * scale, cy);
+        this.ctx.stroke();
+
+        // Y Component Vector (Dashed Amber Line)
+        this.ctx.strokeStyle = '#ff5500';
+        this.ctx.beginPath();
+        this.ctx.moveTo(cx + fx * scale, cy);
+        this.ctx.lineTo(cx + fx * scale, cy - fy * scale);
+        this.ctx.stroke();
+
+        this.ctx.setLineDash([]); // Reset Dash
+
+        // Resultant Vector Arrow (Solid Cyan Line)
+        const tipX = cx + fx * scale;
+        const tipY = cy - fy * scale;
+
+        this.ctx.strokeStyle = '#00f2fe';
+        this.ctx.lineWidth = 3.5;
+        this.ctx.beginPath();
+        this.ctx.moveTo(cx, cy);
+        this.ctx.lineTo(tipX, tipY);
+        this.ctx.stroke();
+
+        // Arrowhead
+        const headAngle = Math.atan2(-fy, fx);
+        this.ctx.fillStyle = '#00f2fe';
+        this.ctx.beginPath();
+        this.ctx.moveTo(tipX, tipY);
+        this.ctx.lineTo(tipX - 10 * Math.cos(headAngle - Math.PI / 6), tipY - 10 * Math.sin(headAngle - Math.PI / 6));
+        this.ctx.lineTo(tipX - 10 * Math.cos(headAngle + Math.PI / 6), tipY - 10 * Math.sin(headAngle + Math.PI / 6));
+        this.ctx.fill();
+      }
+    }
+    let vectorVisualizer;
+  </script>
+
+  <!-- MASTER GAME DATABASE & LOGIC ENGINE -->
+  <script>
+    // Comprehensive English Question Bank for all Game Modes
+    const PHYSICS_DATABASE = {
+      classification: [
+        { q: "A vehicle travels with a velocity of 60 km/h due North.", answer: "VECTOR", exp: "Velocity specifies both a magnitude (60 km/h) and a direction (North)." },
+        { q: "An electric oven generates 2,500 Joules of heat energy.", answer: "SCALAR", exp: "Energy is a scalar quantity; it has magnitude and units but no directional vector." },
+        { q: "A crate experiences a gravitational weight force of 490 N downward.", answer: "VECTOR", exp: "Weight is a force vector directed toward the center of gravity." },
+        { q: "The outdoor ambient temperature reads 298 Kelvin.", answer: "SCALAR", exp: "Temperature measures average molecular kinetic energy—it has no spatial direction." },
+        { q: "An airplane accelerates at 3.5 m/s² Eastward along the runway.", answer: "VECTOR", exp: "Acceleration vector describes the rate of change of velocity in a specific direction." },
+        { q: "A copper sphere has a measured mass of 12.5 kilograms.", answer: "SCALAR", exp: "Mass is an intrinsic scalar property representing matter quantity." },
+        { q: "A submarine descends with a displacement of 300 meters straight down.", answer: "VECTOR", exp: "Displacement is the vector change in position relative to an origin." },
+        { q: "A marathon runner completes a total path distance of 42.195 km.", answer: "SCALAR", exp: "Distance measures total accumulated path length irrespective of direction." },
+        { q: "A wrench applies a rotational torque of 45 N·m clockwise.", answer: "VECTOR", exp: "Torque is a pseudovector with rotational sense and directional axis." },
+        { q: "A storm cloud creates a atmospheric pressure of 101.3 kPa.", answer: "SCALAR", exp: "Gas pressure acts equally in all directions at a point, making it scalar." }
+      ],
+
+      speed: [
+        { q: "Speed = 25 m/s", answer: "SCALAR" },
+        { q: "Velocity = 25 m/s Upward", answer: "VECTOR" },
+        { q: "Mass = 80 kg", answer: "SCALAR" },
+        { q: "Weight = 784 N Downward", answer: "VECTOR" },
+        { q: "Displacement = 50 m West", answer: "VECTOR" },
+        { q: "Distance = 50 m", answer: "SCALAR" },
+        { q: "Work = 400 Joules", answer: "SCALAR" },
+        { q: "Force = 120 N South", answer: "VECTOR" },
+        { q: "Density = 1000 kg/m³", answer: "SCALAR" },
+        { q: "Momentum = 500 kg·m/s East", answer: "VECTOR" },
+        { q: "Time = 14.2 seconds", answer: "SCALAR" },
+        { q: "Gravitational Acceleration = 9.8 m/s² Down", answer: "VECTOR" }
+      ],
+
+      sorting: [
+        { name: "Mass (kg)", type: "SCALAR" },
+        { name: "Weight (N)", type: "VECTOR" },
+        { name: "Distance (m)", type: "SCALAR" },
+        { name: "Displacement (m)", type: "VECTOR" },
+        { name: "Speed (m/s)", type: "SCALAR" },
+        { name: "Velocity (m/s)", type: "VECTOR" },
+        { name: "Work (Joules)", type: "SCALAR" },
+        { name: "Force (N)", type: "VECTOR" },
+        { name: "Temperature (K)", type: "SCALAR" },
+        { name: "Acceleration (m/s²)", type: "VECTOR" }
+      ],
+
+      mistake: [
+        {
+          statement: "Student Claim: 'My car's speedometer reads 60 mph, so my velocity is 60 mph scalar.'",
+          mistake: "Calling velocity a scalar quantity.",
+          correction: "Speedometer measures Speed (Scalar). Velocity requires specifying a direction (e.g., 60 mph North)."
+        },
+        {
+          statement: "Textbook Note: 'Mass is a vector quantity pointing straight down towards Earth's center.'",
+          mistake: "Confusing Mass with Weight.",
+          correction: "Mass is a scalar measure of inertia (kg). Weight is the gravitational force vector (N) directed downward."
+        },
+        {
+          statement: "Lab Report: 'The runner ran around a 400m circular track and finished at start line, achieving 400m displacement.'",
+          mistake: "Equating distance traveled with vector displacement.",
+          correction: "Distance is 400m (scalar), but Displacement is 0m (vector) because initial and final positions are identical."
+        }
+      ],
+
+      missions: [
+        {
+          id: 'spacecraft',
+          title: "Mission A: Spacecraft Thruster Vector Alignment",
+          desc: "Spacecraft Artemis-4 needs a trajectory change. Thruster A exerts 500 N North, while Thruster B exerts 500 N East. Fuel mass remaining is 1200 kg.",
+          q: "To calculate the net acceleration vector of the spacecraft, which quantities must be treated as vectors?",
+          options: [
+            "Both Thruster Forces & Acceleration (Mass remains Scalar)",
+            "Fuel Mass and Thruster Forces are all vectors",
+            "Only Fuel Mass is a vector quantity"
+          ],
+          correct: 0,
+          exp: "Force and Acceleration are vectors requiring component summation ($\vec{F}_{net} = m\vec{a}$). Mass is a scalar divisor."
+        },
+        {
+          id: 'drone',
+          title: "Mission B: Delivery Drone Navigation",
+          desc: "A drone flies 3 km North, 4 km East, and returns to base. Total flight distance is 14 km.",
+          q: "What is the drone's net vector displacement upon completing its return flight?",
+          options: [
+            "14 kilometers",
+            "0 kilometers (Returned to Origin)",
+            "5 kilometers North-East"
+          ],
+          correct: 1,
+          exp: "Displacement measures net change in position ($\vec{r}_{final} - \vec{r}_{initial}$). Returning home yields $\vec{\Delta r} = 0$."
+        }
+      ]
+    };
+
+    // App State Manager
+    class AppManager {
+      constructor() {
+        this.currentScreen = 'main-menu';
+        this.difficulty = 'medium';
+        this.xp = 0;
+        this.totalAnswered = 0;
+        this.correctAnswered = 0;
+        this.level = 1;
+        this.activeMode = null;
+        this.modeState = {};
+        this.selectedSortingItem = null;
+
+        this.achievements = [
+          { id: 'first_step', name: "Scalar Scholar", desc: "Complete your first challenge", unlocked: false },
+          { id: 'vector_master', name: "Vector Specialist", desc: "Achieve 100% accuracy in a session", unlocked: false },
+          { id: 'speed_demon', name: "Speed Demon", desc: "Score 1000+ points in Speed Trial", unlocked: false },
+          { id: 'master_physicist', name: "Master Physicist", desc: "Reach Level 5 rank", unlocked: false }
+        ];
+
+        // Bind Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => this.handleHotkeys(e));
+      }
+
+      showScreen(screenId) {
+        document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+        const target = document.getElementById(`screen-${screenId}`);
+        if (target) {
+          target.classList.remove('hidden');
+          this.currentScreen = screenId;
+        }
+
+        // Initialize Canvases if on learn-basics
+        if (screenId === 'learn-basics') {
+          setTimeout(() => {
+            if (!demoRunner) demoRunner = new RunnerDemo();
+            else demoRunner.init();
+
+            if (!vectorVisualizer) vectorVisualizer = new VectorVisualizer();
+            else vectorVisualizer.init();
+          }, 50);
+        }
+      }
+
+      setDifficulty(val) {
+        this.difficulty = val;
+        audio.play('click');
+      }
+
+      toggleFx() {
+        bgCanvas.enabled = !bgCanvas.enabled;
+        audio.play('click');
+      }
+
+      addXp(amount) {
+        this.xp += amount;
+        document.getElementById('global-xp').innerText = this.xp;
+
+        // Level Up logic
+        const newLvl = Math.floor(this.xp / 300) + 1;
+        if (newLvl > this.level) {
+          this.level = newLvl;
+          document.getElementById('global-level').innerText = `Lvl ${this.level}`;
+          audio.play('levelUp');
+          if (this.level >= 5) this.unlockAchievement('master_physicist');
+        }
+      }
+
+      updateAccuracy(isCorrect) {
+        this.totalAnswered++;
+        if (isCorrect) this.correctAnswered++;
+        const acc = Math.round((this.correctAnswered / this.totalAnswered) * 100);
+        document.getElementById('global-accuracy').innerText = `${acc}%`;
+      }
+
+      unlockAchievement(id) {
+        const ach = this.achievements.find(a => a.id === id);
+        if (ach && !ach.unlocked) {
+          ach.unlocked = true;
+          // Notification chime
+          audio.play('levelUp');
+        }
+      }
+
+      showAchievementsModal() {
+        audio.play('click');
+        const grid = document.getElementById('achievements-grid');
+        grid.innerHTML = this.achievements.map(a => `
+          <div class="p-4 rounded-xl ${a.unlocked ? 'bg-amber-500/10 border border-amber-500/40' : 'bg-navy-900/60 border border-slate-800 opacity-60'} flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg ${a.unlocked ? 'bg-amber-500 text-navy-950' : 'bg-slate-800 text-slate-500'} flex items-center justify-center font-bold text-lg">
+              <i class="fa-solid ${a.unlocked ? 'fa-award' : 'fa-lock'}"></i>
+            </div>
+            <div>
+              <h4 class="font-orbitron font-bold text-sm ${a.unlocked ? 'text-amber-400' : 'text-slate-400'}">${a.name}</h4>
+              <p class="text-xs text-slate-400">${a.desc}</p>
+            </div>
+          </div>
+        `).join('');
+        document.getElementById('achievements-modal').classList.remove('hidden');
+      }
+
+      closeAchievementsModal() {
+        document.getElementById('achievements-modal').classList.add('hidden');
+      }
+
+      startCampaign() {
+        this.startMode('classification');
+      }
+
+      startMode(mode) {
+        audio.play('click');
+        this.activeMode = mode;
+        this.showScreen('gameplay');
+
+        const badge = document.getElementById('active-mode-badge');
+        const timerBox = document.getElementById('timer-box');
+        timerBox.classList.add('hidden');
+
+        if (mode === 'classification') {
+          badge.innerText = 'Mode 1: Classification Challenge';
+          this.initClassificationMode();
+        } else if (mode === 'speed') {
+          badge.innerText = 'Mode 2: Speed Challenge (Time Trial)';
+          timerBox.classList.remove('hidden');
+          this.initSpeedMode();
+        } else if (mode === 'sorting') {
+          badge.innerText = 'Mode 3: Interactive Sorting Lab';
+          this.initSortingMode();
+        } else if (mode === 'mistake') {
+          badge.innerText = 'Mode 4: Spot the Scientific Mistake';
+          this.initMistakeMode();
+        } else if (mode === 'missions') {
+          badge.innerText = 'Mode 5: Real-World Physics Missions';
+          this.initMissionsMode();
+        }
+      }
+
+      retryCurrentMode() {
+        this.closeResultsModal();
+        if (this.activeMode) this.startMode(this.activeMode);
+      }
+
+      // --- MODE 1: CLASSIFICATION CHALLENGE ---
+      initClassificationMode() {
+        const questions = PHYSICS_DATABASE.classification;
+        this.modeState = {
+          currentIndex: 0,
+          total: questions.length,
+          score: 0,
+          streak: 1,
+          missed: []
+        };
+        this.renderClassificationQuestion();
+      }
+
+      renderClassificationQuestion() {
+        const state = this.modeState;
+        const qData = PHYSICS_DATABASE.classification[state.currentIndex];
+
+        document.getElementById('current-q-num').innerText = state.currentIndex + 1;
+        document.getElementById('total-q-num').innerText = state.total;
+        document.getElementById('session-score').innerText = state.score;
+        document.getElementById('combo-streak').innerText = state.streak;
+
+        const area = document.getElementById('gameplay-dynamic-area');
+        area.innerHTML = `
+          <div class="glass-panel rounded-2xl p-6 sm:p-10 space-y-8 max-w-3xl mx-auto border-cyan-500/30 shadow-glass">
+            <div class="space-y-3 text-center">
+              <span class="px-3 py-1 rounded-full bg-navy-900 border border-slate-700 text-xs font-mono text-cyan-300">Target Physical Quantity</span>
+              <h3 class="font-orbitron font-extrabold text-2xl sm:text-3xl text-white leading-snug">${qData.q}</h3>
+            </div>
+
+            <!-- Answer Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+              <button onclick="app.answerClassification('SCALAR')" class="p-6 rounded-2xl glass-panel-gold hover:bg-amber-500/20 border-2 border-amber-500/40 hover:border-amber-400 text-center space-y-2 group transition transform hover:-translate-y-1">
+                <i class="fa-solid fa-sun text-amber-400 text-3xl group-hover:scale-110 transition"></i>
+                <h4 class="font-orbitron font-black text-xl text-amber-400">SCALAR</h4>
+                <p class="text-xs text-slate-400 font-mono">Magnitude + Unit Only</p>
+                <div class="text-[10px] text-amber-300 font-mono">[Hotkey: S]</div>
+              </button>
+
+              <button onclick="app.answerClassification('VECTOR')" class="p-6 rounded-2xl glass-panel hover:bg-cyan-500/20 border-2 border-cyan-500/40 hover:border-cyanGlow text-center space-y-2 group transition transform hover:-translate-y-1">
+                <i class="fa-solid fa-compass-drafting text-cyanGlow text-3xl group-hover:scale-110 transition"></i>
+                <h4 class="font-orbitron font-black text-xl text-cyanGlow">VECTOR</h4>
+                <p class="text-xs text-slate-400 font-mono">Magnitude + Direction</p>
+                <div class="text-[10px] text-cyan-300 font-mono">[Hotkey: V]</div>
+              </button>
+            </div>
+
+            <!-- Breakdown Feedback Banner -->
+            <div id="class-feedback" class="hidden p-4 rounded-xl bg-navy-900 border text-xs font-mono leading-relaxed"></div>
+          </div>
+        `;
+      }
+
+      answerClassification(choice) {
+        const state = this.modeState;
+        const qData = PHYSICS_DATABASE.classification[state.currentIndex];
+        const isCorrect = choice === qData.answer;
+
+        this.updateAccuracy(isCorrect);
+        const fbBox = document.getElementById('class-feedback');
+        fbBox.classList.remove('hidden', 'border-emerald-500', 'border-red-500');
+
+        if (isCorrect) {
+          audio.play('correct');
+          state.score += 100 * state.streak;
+          state.streak = Math.min(state.streak + 1, 5);
+          this.addXp(20);
+          this.unlockAchievement('first_step');
+
+          fbBox.classList.add('border-emerald-500/50', 'bg-emerald-500/10', 'text-emerald-300');
+          fbBox.innerHTML = `<strong><i class="fa-solid fa-circle-check"></i> CORRECT!</strong> ${qData.exp}`;
+        } else {
+          audio.play('wrong');
+          state.streak = 1;
+          state.missed.push({ q: qData.q, correct: qData.answer, exp: qData.exp });
+
+          fbBox.classList.add('border-red-500/50', 'bg-red-500/10', 'text-red-300');
+          fbBox.innerHTML = `<strong><i class="fa-solid fa-circle-xmark"></i> INCORRECT!</strong> Correct Answer: ${qData.answer}. ${qData.exp}`;
+        }
+
+        setTimeout(() => {
+          state.currentIndex++;
+          if (state.currentIndex < state.total) {
+            this.renderClassificationQuestion();
+          } else {
+            this.showResultsModal(state.score, state.missed);
+          }
+        }, 1600);
+      }
+
+      // --- MODE 2: SPEED CHALLENGE ---
+      initSpeedMode() {
+        this.modeState = {
+          score: 0,
+          streak: 1,
+          timeLeft: 45,
+          qList: [...PHYSICS_DATABASE.speed].sort(() => Math.random() - 0.5),
+          index: 0,
+          timerId: null,
+          missed: []
+        };
+
+        const timerElem = document.getElementById('time-left');
+        timerElem.innerText = 45;
+
+        this.modeState.timerId = setInterval(() => {
+          this.modeState.timeLeft--;
+          timerElem.innerText = this.modeState.timeLeft;
+
+          if (this.modeState.timeLeft <= 0) {
+            clearInterval(this.modeState.timerId);
+            if (this.modeState.score >= 1000) this.unlockAchievement('speed_demon');
+            this.showResultsModal(this.modeState.score, this.modeState.missed);
+          }
+        }, 1000);
+
+        this.renderSpeedQuestion();
+      }
+
+      renderSpeedQuestion() {
+        const state = this.modeState;
+        const item = state.qList[state.index % state.qList.length];
+
+        document.getElementById('current-q-num').innerText = state.index + 1;
+        document.getElementById('total-q-num').innerText = '∞';
+        document.getElementById('session-score').innerText = state.score;
+        document.getElementById('combo-streak').innerText = state.streak;
+
+        const area = document.getElementById('gameplay-dynamic-area');
+        area.innerHTML = `
+          <div class="glass-panel rounded-2xl p-8 space-y-6 max-w-2xl mx-auto text-center border-amber-500/40">
+            <span class="text-xs font-mono text-amber-400 uppercase tracking-widest">Rapid Classification</span>
+            <h3 class="font-orbitron font-black text-3xl sm:text-4xl text-white">${item.q}</h3>
+
+            <div class="grid grid-cols-2 gap-4 pt-4">
+              <button onclick="app.answerSpeed('SCALAR')" class="py-5 rounded-xl glass-panel-gold hover:bg-amber-500/30 border border-amber-500 font-orbitron font-bold text-amber-400 text-xl transition transform active:scale-95">
+                SCALAR
+              </button>
+              <button onclick="app.answerSpeed('VECTOR')" class="py-5 rounded-xl glass-panel hover:bg-cyan-500/30 border border-cyanGlow font-orbitron font-bold text-cyanGlow text-xl transition transform active:scale-95">
+                VECTOR
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      answerSpeed(choice) {
+        const state = this.modeState;
+        const item = state.qList[state.index % state.qList.length];
+        const isCorrect = choice === item.answer;
+
+        this.updateAccuracy(isCorrect);
+
+        if (isCorrect) {
+          audio.play('correct');
+          state.score += 150 * state.streak;
+          state.streak = Math.min(state.streak + 1, 5);
+          this.addXp(15);
+        } else {
+          audio.play('wrong');
+          state.streak = 1;
+          state.missed.push({ q: item.q, correct: item.answer, exp: "Rapid trial classification misstep." });
+        }
+
+        state.index++;
+        this.renderSpeedQuestion();
+      }
+
+      // --- MODE 3: SORTING LAB ---
+      initSortingMode() {
+        this.modeState = {
+          items: [...PHYSICS_DATABASE.sorting].sort(() => Math.random() - 0.5),
+          sortedCount: 0,
+          score: 0,
+          missed: []
+        };
+        this.selectedSortingItem = null;
+        this.renderSortingLab();
+      }
+
+      renderSortingLab() {
+        const state = this.modeState;
+        document.getElementById('current-q-num').innerText = state.sortedCount;
+        document.getElementById('total-q-num').innerText = state.items.length;
+        document.getElementById('session-score').innerText = state.score;
+
+        const area = document.getElementById('gameplay-dynamic-area');
+        area.innerHTML = `
+          <div class="space-y-6">
+            <p class="text-xs text-slate-400 font-mono text-center">Drag cards into bins OR tap a card then tap the destination container.</p>
+
+            <!-- Cards Pool -->
+            <div id="sorting-pool" class="flex flex-wrap gap-3 justify-center min-h-[90px] p-4 bg-navy-900/50 rounded-2xl border border-slate-800">
+              ${state.items.map((item, idx) => `
+                <div id="sort-card-${idx}" draggable="true" 
+                     ondragstart="app.handleDragStart(event, ${idx})"
+                     onclick="app.handleCardTap(${idx})"
+                     class="glass-card px-4 py-3 rounded-xl border border-cyan-500/30 font-mono text-xs text-slate-200 cursor-grab active:cursor-grabbing hover:border-cyanGlow transition flex items-center gap-2">
+                  <i class="fa-solid fa-grip-vertical text-slate-500"></i>
+                  <span>${item.name}</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Drop Bins -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <!-- SCALAR LAB BIN -->
+              <div id="bin-scalar" 
+                   ondragover="app.handleDragOver(event)"
+                   ondragleave="app.handleDragLeave(event)"
+                   ondrop="app.handleDrop(event, 'SCALAR')"
+                   onclick="app.handleBinTap('SCALAR')"
+                   class="glass-panel-gold rounded-2xl p-6 min-h-[220px] flex flex-col items-center justify-between border-2 border-dashed border-amber-500/40 hover:border-amber-400 transition cursor-pointer">
+                <div class="text-center space-y-1">
+                  <i class="fa-solid fa-sun text-amber-400 text-3xl"></i>
+                  <h4 class="font-orbitron font-bold text-lg text-amber-400">SCALAR LAB CONTAINER</h4>
+                  <p class="text-[11px] text-amber-200/60 font-mono">Magnitude Only (No Direction)</p>
+                </div>
+                <div id="scalar-bin-items" class="w-full flex flex-wrap gap-2 justify-center pt-4"></div>
+              </div>
+
+              <!-- VECTOR LAB BIN -->
+              <div id="bin-vector" 
+                   ondragover="app.handleDragOver(event)"
+                   ondragleave="app.handleDragLeave(event)"
+                   ondrop="app.handleDrop(event, 'VECTOR')"
+                   onclick="app.handleBinTap('VECTOR')"
+                   class="glass-panel rounded-2xl p-6 min-h-[220px] flex flex-col items-center justify-between border-2 border-dashed border-cyan-500/40 hover:border-cyanGlow transition cursor-pointer">
+                <div class="text-center space-y-1">
+                  <i class="fa-solid fa-compass-drafting text-cyanGlow text-3xl"></i>
+                  <h4 class="font-orbitron font-bold text-lg text-cyanGlow">VECTOR LAB CONTAINER</h4>
+                  <p class="text-[11px] text-cyan-200/60 font-mono">Magnitude + Direction</p>
+                </div>
+                <div id="vector-bin-items" class="w-full flex flex-wrap gap-2 justify-center pt-4"></div>
+              </div>
+
+            </div>
+          </div>
+        `;
+      }
+
+      handleDragStart(e, idx) {
+        e.dataTransfer.setData('text/plain', idx);
+        audio.play('click');
+      }
+      handleDragOver(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('drag-over');
+      }
+      handleDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+      }
+      handleDrop(e, targetBin) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+        const idx = parseInt(e.dataTransfer.getData('text/plain'));
+        this.processSort(idx, targetBin);
+      }
+
+      handleCardTap(idx) {
+        audio.play('click');
+        document.querySelectorAll('[id^="sort-card-"]').forEach(c => c.classList.remove('ring-2', 'ring-cyanGlow'));
+        const card = document.getElementById(`sort-card-${idx}`);
+        if (card) {
+          card.classList.add('ring-2', 'ring-cyanGlow');
+          this.selectedSortingItem = idx;
+        }
+      }
+
+      handleBinTap(targetBin) {
+        if (this.selectedSortingItem !== null) {
+          this.processSort(this.selectedSortingItem, targetBin);
+          this.selectedSortingItem = null;
+        }
+      }
+
+      processSort(idx, targetBin) {
+        const item = this.modeState.items[idx];
+        if (!item) return;
+
+        const isCorrect = item.type === targetBin;
+        this.updateAccuracy(isCorrect);
+
+        const cardElem = document.getElementById(`sort-card-${idx}`);
+        if (cardElem) cardElem.remove();
+
+        const binContainer = document.getElementById(targetBin === 'SCALAR' ? 'scalar-bin-items' : 'vector-bin-items');
+        const badge = document.createElement('div');
+        badge.className = `px-3 py-1.5 rounded-lg text-xs font-mono flex items-center gap-1.5 ${isCorrect ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-red-500/20 text-red-300 border border-red-500/40'}`;
+        badge.innerHTML = `<i class="fa-solid ${isCorrect ? 'fa-check' : 'fa-xmark'}"></i> ${item.name}`;
+        binContainer.appendChild(badge);
+
+        if (isCorrect) {
+          audio.play('correct');
+          this.modeState.score += 100;
+          this.addXp(20);
+        } else {
+          audio.play('wrong');
+          this.modeState.missed.push({ q: item.name, correct: item.type, exp: `${item.name} belongs in the ${item.type} container.` });
+        }
+
+        this.modeState.sortedCount++;
+        document.getElementById('current-q-num').innerText = this.modeState.sortedCount;
+        document.getElementById('session-score').innerText = this.modeState.score;
+
+        if (this.modeState.sortedCount >= this.modeState.items.length) {
+          setTimeout(() => this.showResultsModal(this.modeState.score, this.modeState.missed), 1000);
+        }
+      }
+
+      // --- MODE 4: SPOT THE MISTAKE ---
+      initMistakeMode() {
+        this.modeState = {
+          index: 0,
+          total: PHYSICS_DATABASE.mistake.length,
+          score: 0,
+          missed: []
+        };
+        this.renderMistakeQuestion();
+      }
+
+      renderMistakeQuestion() {
+        const state = this.modeState;
+        const item = PHYSICS_DATABASE.mistake[state.index];
+
+        document.getElementById('current-q-num').innerText = state.index + 1;
+        document.getElementById('total-q-num').innerText = state.total;
+        document.getElementById('session-score').innerText = state.score;
+
+        const area = document.getElementById('gameplay-dynamic-area');
+        area.innerHTML = `
+          <div class="glass-panel rounded-2xl p-6 sm:p-8 space-y-6 max-w-3xl mx-auto border-red-500/30">
+            <div class="space-y-2">
+              <span class="px-3 py-1 rounded bg-red-500/20 border border-red-500/40 text-red-300 text-xs font-mono uppercase">Error Analysis</span>
+              <h3 class="font-orbitron font-bold text-xl text-white">${item.statement}</h3>
+            </div>
+
+            <div class="space-y-3">
+              <p class="text-xs font-mono text-slate-400">Identify the correct scientific error & explanation:</p>
+              
+              <button onclick="app.answerMistake(true)" class="w-full text-left p-4 rounded-xl glass-card hover:border-cyanGlow transition text-xs font-mono space-y-1">
+                <div class="text-cyanGlow font-bold">Scientific Correction:</div>
+                <div class="text-slate-200">${item.correction}</div>
+              </button>
+
+              <button onclick="app.answerMistake(false)" class="w-full text-left p-4 rounded-xl glass-card hover:border-red-400 transition text-xs font-mono space-y-1">
+                <div class="text-red-400 font-bold">Incorrect Claim:</div>
+                <div class="text-slate-200">The statement is actually 100% correct physics theory.</div>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      answerMistake(chosenCorrect) {
+        const state = this.modeState;
+        this.updateAccuracy(chosenCorrect);
+
+        if (chosenCorrect) {
+          audio.play('correct');
+          state.score += 200;
+          this.addXp(30);
+        } else {
+          audio.play('wrong');
+          const item = PHYSICS_DATABASE.mistake[state.index];
+          state.missed.push({ q: item.statement, correct: item.correction, exp: item.mistake });
+        }
+
+        state.index++;
+        if (state.index < state.total) {
+          this.renderMistakeQuestion();
+        } else {
+          this.showResultsModal(state.score, state.missed);
+        }
+      }
+
+      // --- MODE 5: REAL-WORLD PHYSICS MISSIONS ---
+      initMissionsMode() {
+        this.modeState = {
+          index: 0,
+          total: PHYSICS_DATABASE.missions.length,
+          score: 0,
+          missed: []
+        };
+        this.renderMission();
+      }
+
+      renderMission() {
+        const state = this.modeState;
+        const mission = PHYSICS_DATABASE.missions[state.index];
+
+        document.getElementById('current-q-num').innerText = state.index + 1;
+        document.getElementById('total-q-num').innerText = state.total;
+
+        const area = document.getElementById('gameplay-dynamic-area');
+        area.innerHTML = `
+          <div class="glass-panel rounded-2xl p-6 sm:p-8 space-y-6 max-w-3xl mx-auto border-emerald-500/30">
+            <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 text-2xl">
+                <i class="fa-solid fa-rocket"></i>
+              </div>
+              <div>
+                <h3 class="font-orbitron font-bold text-xl text-white">${mission.title}</h3>
+                <p class="text-xs text-slate-400">${mission.desc}</p>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <p class="text-sm font-semibold text-cyan-300 font-mono">${mission.q}</p>
+
+              <div class="space-y-2">
+                ${mission.options.map((opt, idx) => `
+                  <button onclick="app.answerMission(${idx})" class="w-full text-left p-4 rounded-xl glass-card hover:border-emerald-400 text-xs font-mono text-slate-200 transition">
+                    ${idx + 1}. ${opt}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      answerMission(selectedIdx) {
+        const state = this.modeState;
+        const mission = PHYSICS_DATABASE.missions[state.index];
+        const isCorrect = selectedIdx === mission.correct;
+
+        this.updateAccuracy(isCorrect);
+
+        if (isCorrect) {
+          audio.play('correct');
+          state.score += 250;
+          this.addXp(40);
+        } else {
+          audio.play('wrong');
+          state.missed.push({ q: mission.title, correct: mission.options[mission.correct], exp: mission.exp });
+        }
+
+        state.index++;
+        if (state.index < state.total) {
+          this.renderMission();
+        } else {
+          this.showResultsModal(state.score, state.missed);
+        }
+      }
+
+      // --- RESULTS MODAL & DIAGNOSTICS ---
+      showResultsModal(score, missedList) {
+        const modal = document.getElementById('results-modal');
+        document.getElementById('modal-score').innerText = score;
+        document.getElementById('modal-accuracy').innerText = document.getElementById('global-accuracy').innerText;
+        document.getElementById('modal-xp').innerText = `+${Math.round(score * 0.2)}`;
+
+        const fbList = document.getElementById('modal-feedback-list');
+        if (missedList && missedList.length > 0) {
+          fbList.innerHTML = missedList.map(m => `
+            <div class="p-2 bg-red-500/10 border border-red-500/30 rounded text-[11px] space-y-1">
+              <div class="text-red-300 font-bold">${m.q}</div>
+              <div class="text-slate-300">${m.exp || m.correct}</div>
+            </div>
+          `).join('');
+        } else {
+          fbList.innerHTML = '<p class="text-emerald-400 font-bold"> Perfect Score! Zero missed concepts.</p>';
+          this.unlockAchievement('vector_master');
+        }
+
+        modal.classList.remove('hidden');
+      }
+
+      closeResultsModal() {
+        document.getElementById('results-modal').classList.add('hidden');
+        if (this.modeState.timerId) clearInterval(this.modeState.timerId);
+      }
+
+      // Hotkey support (S for Scalar, V for Vector)
+      handleHotkeys(e) {
+        if (this.currentScreen !== 'gameplay') return;
+        const key = e.key.toUpperCase();
+        if (this.activeMode === 'classification') {
+          if (key === 'S') this.answerClassification('SCALAR');
+          if (key === 'V') this.answerClassification('VECTOR');
+        } else if (this.activeMode === 'speed') {
+          if (key === 'S') this.answerSpeed('SCALAR');
+          if (key === 'V') this.answerSpeed('VECTOR');
+        }
+      }
+    }
+
+    const app = new AppManager();
+  </script>
+</body>
+</html>
